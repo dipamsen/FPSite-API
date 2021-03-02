@@ -1,5 +1,5 @@
-const app = require("./app");
-const db = require("./database");
+const app = require("./src/app");
+const db = require("./src/database");
 const firebase = require("firebase");
 
 
