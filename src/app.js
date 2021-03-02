@@ -9,5 +9,4 @@ app.use(cors())
 app.use(helmet())
 app.use(morgan("short"))
 
-const port = +process.env.PORT || 1930
-app.listen(port, () => console.log(`Listening on ${port}`))
+module.exports = app
