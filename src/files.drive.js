@@ -29,6 +29,7 @@ function getLinkFromId(id) {
 
 async function allSubjects() {
   const subjectFolders = await listFiles("1rw9ESBclwgbbQRTsBlHEQN8qAd8biVqg")
+  if (textbook.length == subjectFolders.files.length) return textbook
   textbook = []
   for (const file of subjectFolders.files) {
     const [sub, bookName] = file.name.split("$$")
@@ -49,11 +50,7 @@ async function allSubjects() {
 }
 
 async function getTextBook() {
-  if (textbook.length > 0) {
-    return textbook
-  } else {
-    return allSubjects()
-  }
+  return allSubjects()
 }
 
 
