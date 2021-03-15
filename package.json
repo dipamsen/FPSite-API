@@ -4,15 +4,19 @@
   "description": "API for FPSite",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ."
   },
   "keywords": [],
   "author": "Fun Planet",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "dropbox": "^9.2.0",
     "express": "^4.17.1",
     "firebase": "^8.2.9",
+    "googleapis": "^67.1.1",
     "helmet": "^4.4.1",
     "morgan": "^1.10.0"
   }
