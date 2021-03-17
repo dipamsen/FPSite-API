@@ -9,7 +9,6 @@
     }[];
   }[]}
  */
-let textbook = []
 const { google } = require('googleapis');
 
 const drive = google.drive({
@@ -18,20 +17,20 @@ const drive = google.drive({
 });
 async function listFiles(folder) {
   const { data: files } = await drive.files.list({
-    q: `"${folder}" in parents`
+    q: `"${folder}" in parents`, fields: "*"
   })
   return files
 }
 
-function getLinkFromId(id) {
-  return `https://drive.google.com/file/d/${id}/view`
-}
-
 async function allSubjects() {
   const subjectFolders = await listFiles("1rw9ESBclwgbbQRTsBlHEQN8qAd8biVqg")
-  if (textbook.length == subjectFolders.files.length) return textbook
-  textbook = []
-  for (const file of subjectFolders.files) {
+  return subjectFolders.files
+}
+
+async function getTextBook() {
+  const textbook = []
+  const subjects = await allSubjects()
+  for (const file of subjects) {
     const [sub, bookName] = file.name.split("$$")
     const chapters = await listFiles(file.id)
     textbook.push({
@@ -41,7 +40,7 @@ async function allSubjects() {
         return {
           name,
           index: +i,
-          link: getLinkFromId(x.id)
+          link: x.webViewLink
         }
       }).sort((a, b) => a.index - b.index)
     })
@@ -49,9 +48,26 @@ async function allSubjects() {
   return textbook
 }
 
-async function getTextBook() {
-  return allSubjects()
+async function getMathXplained() {
+  const mathxplainedFolder = "1gVG3YpiyQZ-Fut8a_V2OacSlaIeWneAj"
+  const allFiles = await listFiles(mathxplainedFolder)
+  /** @type {{questionLink?: string, answerLink?: string, chNo?: number, descriptor?: string}[]} */
+  const MXData = []
+  allFiles.files.map(file => {
+    const [no, isSolution] = file.name.match(/math\-explained-(\d+)(\-solution)?.pdf/).slice(1, 3)
+    return { no: +no, isSolution, file }
+  }).map(({ no, isSolution, file }) => {
+    if (!MXData[no]) MXData[no] = {}
+    if (isSolution) MXData[no].answerLink = file.webViewLink
+    else MXData[no].questionLink = file.webViewLink
+    if (file.description) {
+      const [, ch, topic, sec] = file.description.match(/CH(\d+)\-(.+)\-(.+)/)
+      MXData[no].chNo = +ch
+      MXData[no].descriptor = `${sec} ${topic}`
+    }
+  })
+  return MXData
 }
 
 
-module.exports = { getTextBook }
+module.exports = { getTextBook, getMathXplained, listFiles }
