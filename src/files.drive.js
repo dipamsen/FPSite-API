@@ -1,14 +1,3 @@
-/**
- * @type {{
-    subject: string;
-    bookName: string;
-    chapters: {
-        name: string;
-        index: number;
-        link: string;
-    }[];
-  }[]}
- */
 const { google } = require('googleapis');
 
 const drive = google.drive({
@@ -69,5 +58,57 @@ async function getMathXplained() {
   return MXData
 }
 
+/**
+ * @param {string} string
+ */
+function parseData(string) {
+  const keyvals = string.split("\n").map(x => x.split("="))
+  // @ts-ignore
+  return new Map(keyvals)
+}
 
-module.exports = { getTextBook, getMathXplained, listFiles }
+function bool(str) {
+  return str == "true"
+}
+
+async function getChaptersAndResources(subID) {
+  const byOrderID = (a, b) => a._orderID - b._orderID
+  const removeOrderID = x => {
+    const { _orderID, ...rest } = x
+    return rest
+  }
+  const subToID = {
+    eng: "1_EKb_2R_b_xfk31uV4TRLLFLwqXZDDmT",
+    hin: "1UcQhrPBVE14V4z9grpb0OFshEFASxyTL",
+    mat: "1Ic-5rT3wsmqSOlERqEemYj53drbUKPqV",
+    sci: "1VUTmZGx2LDAkBkCZrOLB3HnHbcceS9il",
+    ssc: "1mHbiZ81aMCvGzxV5AeO8u5g9bu_7-Roy",
+  }
+  if (!subToID[subID]) return { error: "bruh" }
+  const chapters = await listFiles(subToID[subID])
+  const allChapters = []
+  for (const chapter of chapters.files) {
+    const resources = await listFiles(chapter.id)
+    if (resources.files.length == 0) continue
+    const allResources = []
+    for (const resource of resources.files) {
+      const config = parseData(resource.description)
+      if (bool(config.get("IGNORE"))) continue
+      allResources.push({
+        name: config.get("NAME") || resource.name,
+        link: resource.webViewLink,
+        hasSolution: bool(config.get("HAS_SOLUTION")),
+        _orderID: config.get("ORDERID"),
+        answerLink: bool(config.get("HAS_SOLUTION")) ? resources.files.find(f => f.name == config.get("ANSWER_FILE")).webViewLink : undefined
+      })
+    }
+    allChapters.push({
+      chapterName: chapter.name,
+      _orderID: +chapter.description,
+      resources: allResources.sort(byOrderID).map(removeOrderID)
+    })
+  }
+  return allChapters.sort(byOrderID).map(removeOrderID)
+}
+
+module.exports = { getTextBook, getMathXplained, listFiles, getChaptersAndResources }

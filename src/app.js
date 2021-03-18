@@ -4,7 +4,7 @@ const morgan = require("morgan")
 const cors = require("cors")
 const db = require("./database");
 const filestore = require("./filestore");
-const { getTextBook, getMathXplained, listFiles } = require("./files.drive");
+const { getTextBook, getMathXplained, listFiles, getChaptersAndResources } = require("./files.drive");
 const app = express()
 
 app.use(cors())
@@ -64,28 +64,9 @@ app.get("/test/:testID", async (req, res) => {
   })
 })
 
-app.get("/resources/mat", async (req, res) => {
-  const chapters = await listFiles("16j1ZNpnedr48MD9HpkkCdOeVvNt50zyr")
-  const MathXP = await getMathXplained()
-  const MathResources = chapters.files.map(x => ({
-    chapterName: x.name.slice(0, -4).match(/(\d+)\.\s+(.*)/)[2],
-    index: +x.name.slice(0, -4).match(/(\d+)\.\s+(.*)/)[1],
-    resources: []
-  })).sort((a, b) => a.index - b.index)
-  MathXP.forEach(({ questionLink, answerLink, chNo, descriptor }) => {
-    const resource = {
-      name: `MathXplained - ${descriptor}`,
-      hasSolution: true,
-      qp: questionLink,
-      as: answerLink
-    }
-    MathResources.find(x => x.index == chNo).resources.push(resource)
-  })
-  res.send(MathResources.map(({ chapterName, resources }) => ({ chapterName, resources })).filter(a => a.resources.length > 0))
-})
-
-app.get("/resources/:sub", (req, res) => {
-  res.json([])
+app.get("/resources/:sub", async (req, res) => {
+  const { sub } = req.params
+  res.json(await getChaptersAndResources(sub))
 })
 
 module.exports = app
