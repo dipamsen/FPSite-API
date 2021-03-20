@@ -4,7 +4,7 @@ const morgan = require("morgan")
 const cors = require("cors")
 const db = require("./database");
 const filestore = require("./filestore");
-const { getTextBook, getMathXplained, listFiles, getChaptersAndResources } = require("./files.drive");
+const { getTextBook, getMathXplained, listFiles, getChaptersAndResources, allSubjects } = require("./files.drive");
 const app = express()
 
 app.use(cors())
@@ -43,7 +43,12 @@ app.get("/subjects/:subid", async (req, res) => {
 })
 
 app.get("/textbook", async (req, res) => {
-  res.send(await getTextBook())
+  res.send(await allSubjects())
+})
+
+app.get("/textbook/:idx", async (req, res) => {
+  const { idx } = req.params
+  res.send(await getTextBook(+idx))
 })
 
 app.get("/mathxplained", async (req, res) => {

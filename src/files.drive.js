@@ -13,28 +13,31 @@ async function listFiles(folder) {
 
 async function allSubjects() {
   const subjectFolders = await listFiles("1rw9ESBclwgbbQRTsBlHEQN8qAd8biVqg")
-  return subjectFolders.files
+  return subjectFolders.files.map((x, i) => {
+    const [subject, bookName] = x.name.split("$$")
+    return {
+      subject, bookName,
+      id: x.id,
+      idx: i
+    }
+  })
 }
 
-async function getTextBook() {
-  const textbook = []
+async function getTextBook(idx) {
   const subjects = await allSubjects()
-  for (const file of subjects) {
-    const [sub, bookName] = file.name.split("$$")
-    const chapters = await listFiles(file.id)
-    textbook.push({
-      subject: sub, bookName,
-      chapters: chapters.files.map(x => {
-        const [, i, name] = x.name.slice(0, -4).match(/(\d+)\.\s+(.*)/)
-        return {
-          name,
-          index: +i,
-          link: x.webViewLink
-        }
-      }).sort((a, b) => a.index - b.index)
-    })
+  const folder = subjects[idx]
+  const chapters = await listFiles(folder.id)
+  return {
+    subject: folder.subject, bookName: folder.bookName,
+    chapters: chapters.files.map(x => {
+      const [, i, name] = x.name.slice(0, -4).match(/(\d+)\.\s+(.*)/)
+      return {
+        name,
+        index: +i,
+        link: x.webViewLink
+      }
+    }).sort((a, b) => a.index - b.index)
   }
-  return textbook
 }
 
 async function getMathXplained() {
@@ -111,4 +114,4 @@ async function getChaptersAndResources(subID) {
   return allChapters.sort(byOrderID).map(removeOrderID)
 }
 
-module.exports = { getTextBook, getMathXplained, listFiles, getChaptersAndResources }
+module.exports = { getTextBook, getMathXplained, listFiles, getChaptersAndResources, allSubjects }
