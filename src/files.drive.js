@@ -7,7 +7,7 @@ const drive = google.drive({
 async function listFiles(folder) {
   const { data: files } = await drive.files.list({
     q: `"${folder}" in parents`,
-    //fields: "*"
+    fields: "files/description, files/name, files/id",
   });
   return files;
 }
