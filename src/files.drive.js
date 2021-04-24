@@ -29,7 +29,7 @@ async function allSubjects() {
  * @param {import("googleapis").drive_v3.Schema$File} id
  */
 function webViewLink(id) {
-  return id.mimeType == "application/vnd.google-apps.folder	"
+  return id.mimeType == "application/vnd.google-apps.folder"
     ? `https://drive.google.com/drive/folder/${id.id}`
     : `https://drive.google.com/file/d/${id.id}/view`;
 }
