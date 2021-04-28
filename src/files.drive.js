@@ -7,7 +7,7 @@ const drive = google.drive({
 async function listFiles(folder) {
   const { data: files } = await drive.files.list({
     q: `"${folder}" in parents`,
-    fields: "files/description, files/name, files/id",
+    fields: "files/description, files/name, files/id, files/mimeType",
   });
   return files;
 }
@@ -30,7 +30,7 @@ async function allSubjects() {
  */
 function webViewLink(id) {
   return id.mimeType == "application/vnd.google-apps.folder"
-    ? `https://drive.google.com/drive/folder/${id.id}`
+    ? `https://drive.google.com/drive/folders/${id.id}`
     : `https://drive.google.com/file/d/${id.id}/view`;
 }
 
