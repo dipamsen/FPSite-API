@@ -84,7 +84,7 @@ async function getMathXplained() {
 /**
  * @param {string} string
  */
-function parseData(string) {
+function parseData(string = "") {
   const keyvals = string.split("\n").map((x) => x.split("="));
   // @ts-ignore
   return new Map(keyvals);
@@ -117,16 +117,19 @@ async function getChaptersAndResources(subID) {
     for (const resource of resources.files) {
       const config = parseData(resource.description);
       if (bool(config.get("IGNORE"))) continue;
+      const hasSolution =
+        bool(config.get("HAS_SOLUTION")) || !!config.get("ANSWER_FILE");
+      const answerFile = resources.files.find((f) =>
+        f.name.startsWith(config.get("ANSWER_FILE"))
+      );
+      if (answerFile && answerFile.description)
+        answerFile.description += "\nIGNORE=true";
       allResources.push({
         name: config.get("NAME") || resource.name,
         link: webViewLink(resource),
-        hasSolution: bool(config.get("HAS_SOLUTION")),
+        hasSolution,
         _orderID: config.get("ORDERID"),
-        answerLink: bool(config.get("HAS_SOLUTION"))
-          ? webViewLink(
-              resources.files.find((f) => f.name == config.get("ANSWER_FILE"))
-            )
-          : undefined,
+        answerLink: hasSolution ? webViewLink(answerFile) : undefined,
       });
     }
     allChapters.push({
