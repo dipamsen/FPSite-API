@@ -2,7 +2,7 @@ const { google } = require("googleapis");
 
 const drive = google.drive({
   version: "v3",
-  auth: "AIzaSyD9qP4s_rkx4uV_Sex4KPzdaNErx_MSDJQ",
+  auth: process.env.GOOGLE_KEY,
 });
 async function listFiles(folder) {
   const { data: files } = await drive.files.list({
