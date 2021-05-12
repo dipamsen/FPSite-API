@@ -11,6 +11,7 @@
   "author": "Fun Planet",
   "license": "MIT",
   "dependencies": {
+    "@supabase/supabase-js": "^1.11.10",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "dropbox": "^9.2.0",
