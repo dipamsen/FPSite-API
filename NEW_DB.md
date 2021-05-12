@@ -10,10 +10,14 @@
   - name: varchar
   - subject_id: foreignkey
   - indexer: int4
-  - added_at: datetime
+  - added_at: timestamp
 - resource
   - id: int4
   - name: varchar
-  - subject_id: foreignkey
   - chapter_id: foreignkey
-  - added_at: datetime
+  - drive_id: varchar
+  - is_folder: bool
+  - added_at: timestamp
+  - indexer: int2
+  - ignore: bool
+  - answers_id: varchar
