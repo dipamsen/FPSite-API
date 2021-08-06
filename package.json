@@ -11,6 +11,7 @@
   "author": "Fun Planet",
   "license": "MIT",
   "dependencies": {
+    "@hapi/joi-date": "^2.0.1",
     "@supabase/supabase-js": "^1.11.10",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
@@ -19,6 +20,7 @@
     "firebase": "^8.2.9",
     "googleapis": "^67.1.1",
     "helmet": "^4.4.1",
+    "joi": "^17.4.0",
     "morgan": "^1.10.0",
     "proposal-temporal": "^0.8.0"
   }

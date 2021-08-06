@@ -7,6 +7,7 @@ const filestore = require("./filestore");
 const {
   Temporal: { PlainDate },
 } = require("proposal-temporal");
+const { CalendarEventSchema } = require("./validation");
 
 const {
   getTextBook,
@@ -18,6 +19,7 @@ const app = express();
 
 app.use(cors());
 app.use(helmet());
+app.use(express.json());
 app.use(morgan("short"));
 
 app.get("/", (req, res) => {
@@ -104,7 +106,9 @@ app.get("/calendar", async (req, res) => {
         )
           dates.push(curr.toString());
       } else {
-        const date = PlainDate.from(d.date.toDate().toISOString()).toString();
+        const date = PlainDate.from(d.date.toDate().toISOString())
+          .add({ days: 1 })
+          .toString();
         dates.push(date);
       }
       return {
@@ -121,8 +125,10 @@ app.post("/calendar", async (req, res) => {
   /** @type {import("./idnex").CalendarEvent} */
   const body = req.body;
   try {
-    const doc = await db.collection("calendar").add(body);
-    res.send({ success: true });
+    const { value, error } = CalendarEventSchema.validate(body);
+    if (error) return res.status(400).send({ success: false, error });
+    const doc = await db.collection("calendar").add(value);
+    res.send({ success: true, value });
   } catch (err) {
     res.status(503).send({ success: false, err });
   }
